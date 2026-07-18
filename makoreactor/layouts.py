@@ -162,17 +162,17 @@ class SquareCapLeverless(CircleCapLeverless):
   cap_fillet_radius:float = .1
   
   @property
-  def geom(self):                             
-     if len(list(self.layout)) == 0:          
-       return Base.generate(self)               
-                                              
-     s = (                                    
-         cq.Sketch()                          
-             .push(self.layout)         
-             .rect(*self.cap_dimensions)   
-             .clean()                         
-             .reset()                         
-             .vertices()                   
+  def geom(self):
+     if len(list(self.layout)) == 0:
+       return cq.Workplane("XY")
+
+     s = (
+         cq.Sketch()
+             .push(self.layout)
+             .rect(*self.cap_dimensions)
+             .clean()
+             .reset()
+             .vertices()
              .fillet(self.cap_fillet_radius)
      )
 

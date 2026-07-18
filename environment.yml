@@ -15,7 +15,7 @@ dependencies:
   - geopandas 
   - pyproj
   - pip:
-    - cadquery[dev]==2.2.0b0
+    - cadquery>=2.4,<3
     - affine
     - jupyter-cadquery
     - jupyter-cadquery-widgets
