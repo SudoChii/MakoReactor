@@ -3,14 +3,19 @@ channels:
   - conda-forge
 
 dependencies:
+  - alphashape
+  - geojson 
   - bzip2
-  - cadquery
   - cairo
   - numpy
   - click
   - click-log
   - click-plugins
+  - python=3.10
+  - geopandas 
+  - pyproj
   - pip:
+    - cadquery[dev]==2.2.0b0
     - affine
     - jupyter-cadquery
     - jupyter-cadquery-widgets
