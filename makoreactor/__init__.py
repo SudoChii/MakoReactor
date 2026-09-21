@@ -1,8 +1,116 @@
-from .layouts import *
-from .parts.layered_leverless import *
+"""Mako Reactor: CAD-as-code for layered leverless fight controllers.
 
-# Notebook aliases (makogen-era names)
-F1CapLayout = CircleCapLeverless
-KeycapLayout = SquareCapLeverless
-fgcLayout = fgcF1CapLayout
-OneThumbFgcLayout = fgcF1CapLayout
+Layouts describe where the buttons go; parts turn a layout into flat plates
+that can be exported to DXF and cut.
+
+    >>> import makoreactor as mr
+    >>> stack = mr.f1CapMako1.set(width=mr.in2mm(11.8), height=mr.in2mm(5))
+    >>> plates = stack.generate()
+"""
+
+from .layouts import (
+    GROUPS,
+    CircleCapLeverless,
+    FgcLeverless,
+    Gccmx,
+    Layout,
+    Mako1Hadoe,
+    WideGc,
+    FgcPlus,
+    SanwaFgcLeverless,
+    SquareCapLeverless,
+    fgcF1CapLayout,
+    mako1HadoeLayout,
+    wideGcLayout,
+    fgcPlusLayout,
+    sanwaFgcLayout,
+    smashF1CapLayout,
+    smashGccmxLayout,
+    smashKeycapLayout,
+)
+from .parts.sanwa_fgc import (
+    DSERIES,
+    OBSF24,
+    OBSF30,
+    DSeriesJack,
+    SanwaAssembly,
+    SanwaBody,
+    SanwaBottomPlate,
+    SanwaPlate,
+    SanwaSupportPlate,
+    SanwaTopPlate,
+    SnapInButton,
+    sanwaFgc,
+    sanwaFgcPlus,
+)
+from .parts.layered_leverless import (
+    Backplate,
+    Base,
+    BrookAssembly,
+    BrookBoard,
+    BrookSwitchplate,
+    BrookWireSpace,
+    F1CapFaceplate,
+    KeycapFaceplate,
+    LayeredAssembly,
+    PlatePart,
+    Switchplate,
+    WireSpaceModelU,
+    brookMako1,
+    f1CapMako1,
+    in2mm,
+    mako1,
+)
+
+__version__ = "0.2.0"
+
+__all__ = [
+    "GROUPS",
+    "Layout",
+    "CircleCapLeverless",
+    "SquareCapLeverless",
+    "Gccmx",
+    "Mako1Hadoe",
+    "WideGc",
+    "FgcLeverless",
+    "SanwaFgcLeverless",
+    "FgcPlus",
+    "smashF1CapLayout",
+    "smashGccmxLayout",
+    "smashKeycapLayout",
+    "mako1HadoeLayout",
+    "wideGcLayout",
+    "fgcF1CapLayout",
+    "sanwaFgcLayout",
+    "fgcPlusLayout",
+    "PlatePart",
+    "Base",
+    "WireSpaceModelU",
+    "Switchplate",
+    "F1CapFaceplate",
+    "KeycapFaceplate",
+    "Backplate",
+    "LayeredAssembly",
+    "BrookBoard",
+    "BrookWireSpace",
+    "BrookSwitchplate",
+    "BrookAssembly",
+    "f1CapMako1",
+    "brookMako1",
+    "mako1",
+    "SnapInButton",
+    "DSeriesJack",
+    "OBSF24",
+    "OBSF30",
+    "DSERIES",
+    "SanwaPlate",
+    "SanwaTopPlate",
+    "SanwaSupportPlate",
+    "SanwaBottomPlate",
+    "SanwaBody",
+    "SanwaAssembly",
+    "sanwaFgc",
+    "sanwaFgcPlus",
+    "in2mm",
+    "__version__",
+]

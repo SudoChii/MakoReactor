@@ -1,21 +1,13 @@
+name: mako
+
 channels:
-  - cadquery
   - conda-forge
 
 dependencies:
-  - alphashape
-  - geojson 
-  - bzip2
-  - cairo
+  - python=3.11
+  - cadquery>=2.5,<3
   - numpy
-  - click
-  - click-log
-  - click-plugins
-  - python=3.10
-  - geopandas 
-  - pyproj
-  - pip:
-    - cadquery>=2.4,<3
-    - affine
-    - jupyter-cadquery
-    - jupyter-cadquery-widgets
+  - affine
+  # development / notebooks
+  - pytest
+  - jupyterlab

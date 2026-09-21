@@ -1,0 +1,67 @@
+#pragma experiment("TRAITS")
+
+import ElectricPower
+import ElectricLogic
+import has_designator_prefix
+import is_atomic_part
+import has_part_picked
+import has_part_removed
+
+component ModelUD_package:
+    """
+    Header side of HTangl's Model UD, a USB-C breakout for rectangle
+    controllers (https://github.com/HTangl/Model-UD).
+
+    36 x 13.5mm, two 1x4 headers 15.24mm apart, measured off the Model BirdD
+    KiCad files -- the BirdD is the variant with the M3 holes, which is the one
+    worth using here since it screws to the body rather than hanging on its
+    pins.  VSYS is the point of the board: it is VBUS through a Schottky diode,
+    so it goes straight to the Pico's VSYS with nothing in between.
+    """
+
+    trait is_atomic_part<manufacturer="HTangl", partnumber="ModelUD", footprint="ModelUD.kicad_mod", symbol="ModelUD.kicad_sym">
+    # Not picked from a catalogue -- you buy these yourself.  The trait is
+    # still needed: designators only go to parts that carry it.  Supplier
+    # fields are left empty on purpose, which is what stops the picker
+    # treating this as an LCSC part it should go and look up.
+    trait has_part_picked<supplier_id="", supplier_partno="", manufacturer="HTangl", partno="Model BirdD">
+    # Nothing on this board is machine-populated: the switches, the Pico
+    # and the USB breakout all go in by hand.  This keeps them out of the
+    # assembly BOM while still putting them on the PCB.
+    trait has_part_removed
+
+    trait has_designator_prefix<prefix="J">
+
+    pin GCD
+    pin Dm
+    pin Dp
+    pin GND
+    pin V3V
+    pin VSYS
+    pin V5
+
+
+module ModelUD:
+    """The breakout, wired out as power and a USB pair."""
+
+    package = new ModelUD_package
+
+    # VSYS rail: diode-fed VBUS, which is what the Pico wants.
+    power = new ElectricPower
+    package.VSYS ~ power.hv
+    package.GND ~ power.lv
+    assert power.voltage within 4.35V to 5.25V
+
+    # USB data, as two logic lines referenced to the same rail.  Not a USB2_0
+    # interface: these go to the Pico's test pads by wire, not by track.
+    usb_dp = new ElectricLogic
+    usb_dm = new ElectricLogic
+    package.Dp ~ usb_dp.line
+    package.Dm ~ usb_dm.line
+    usb_dp.reference ~ power
+    usb_dm.reference ~ power
+
+    # Raw VBUS and the GameCube detect rails, brought out for completeness.
+    vbus = new ElectricLogic
+    package.V5 ~ vbus.line
+    vbus.reference ~ power

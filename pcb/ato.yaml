@@ -1,0 +1,13 @@
+requires-atopile: ^0.15.0
+
+paths:
+  src: .
+  layout: ./layout
+
+builds:
+  default:
+    entry: mako1.ato:Mako1Board
+    # Nothing here comes from a catalogue -- switches, Pico and the Model UD
+    # are all bought separately -- so there is no supplier data to put in a
+    # BOM.  The netlist and the PCB are the outputs that matter.
+    exclude_targets: [bom]

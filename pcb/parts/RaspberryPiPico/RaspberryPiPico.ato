@@ -1,0 +1,125 @@
+#pragma experiment("TRAITS")
+#pragma experiment("FOR_LOOP")
+
+import ElectricPower
+import ElectricLogic
+import has_designator_prefix
+import is_atomic_part
+import has_part_picked
+import has_part_removed
+
+component RaspberryPiPico_package:
+    """
+    Raspberry Pi Pico as a module, mounted under the board.
+
+    Plated holes on the 2x20 grid, so it can sit on headers or be soldered
+    flat by its castellations.  Pads are named by signal rather than numbered,
+    which collapses the eight GND pads onto one pin and lets the wiring read
+    as GP4 rather than pin 6.
+
+    USB is not on this header.  D+ and D- come out only on the Pico's TP2/TP3
+    pads underneath it, so the board brings the Model UD's pair to a labelled
+    link beside the Pico and you run two short wires.  Every DIY build does
+    this; there is no way to do it in copper alone.
+    """
+
+    trait is_atomic_part<manufacturer="Raspberry Pi", partnumber="Pico", footprint="RaspberryPiPico.kicad_mod", symbol="RaspberryPiPico.kicad_sym">
+    # Not picked from a catalogue -- you buy these yourself.  The trait is
+    # still needed: designators only go to parts that carry it.  Supplier
+    # fields are left empty on purpose, which is what stops the picker
+    # treating this as an LCSC part it should go and look up.
+    trait has_part_picked<supplier_id="", supplier_partno="", manufacturer="Raspberry Pi", partno="SC0915">
+    # Nothing on this board is machine-populated: the switches, the Pico
+    # and the USB breakout all go in by hand.  This keeps them out of the
+    # assembly BOM while still putting them on the PCB.
+    trait has_part_removed
+
+    trait has_designator_prefix<prefix="U">
+
+    pin GP0
+    pin GP1
+    pin GP2
+    pin GP3
+    pin GP4
+    pin GP5
+    pin GP6
+    pin GP7
+    pin GP8
+    pin GP9
+    pin GP10
+    pin GP11
+    pin GP12
+    pin GP13
+    pin GP14
+    pin GP15
+    pin GP16
+    pin GP17
+    pin GP18
+    pin GP19
+    pin GP20
+    pin GP21
+    pin GP22
+    pin GP26
+    pin GP27
+    pin GP28
+    pin GND
+    pin RUN
+    pin VSYS
+    pin VBUS
+    pin V3V3
+    pin V3V3_EN
+    pin VREF
+    pin AGND
+
+
+module RaspberryPiPico:
+    """The Pico, wired out as a power rail and GPIO by number."""
+
+    package = new RaspberryPiPico_package
+
+    #: What the Model UD feeds: 5V through its Schottky, straight to VSYS.
+    power = new ElectricPower
+    package.VSYS ~ power.hv
+    package.GND ~ power.lv
+    assert power.voltage within 1.8V to 5.5V
+
+    #: The Pico's own regulator output.  Nothing on this board draws from it;
+    #: it is here so a future add-on can.
+    power_3v3 = new ElectricPower
+    package.V3V3 ~ power_3v3.hv
+    package.GND ~ power_3v3.lv
+    assert power_3v3.voltage within 3.3V +/- 5%
+
+    #: Indexed by GPIO number, so gpio[4] is GP4.  23, 24 and 25 are wired to
+    #: the Pico's own hardware and are absent from the header; they exist in
+    #: this array and simply go nowhere.
+    gpio = new ElectricLogic[29]
+    package.GP0 ~ gpio[0].line
+    package.GP1 ~ gpio[1].line
+    package.GP2 ~ gpio[2].line
+    package.GP3 ~ gpio[3].line
+    package.GP4 ~ gpio[4].line
+    package.GP5 ~ gpio[5].line
+    package.GP6 ~ gpio[6].line
+    package.GP7 ~ gpio[7].line
+    package.GP8 ~ gpio[8].line
+    package.GP9 ~ gpio[9].line
+    package.GP10 ~ gpio[10].line
+    package.GP11 ~ gpio[11].line
+    package.GP12 ~ gpio[12].line
+    package.GP13 ~ gpio[13].line
+    package.GP14 ~ gpio[14].line
+    package.GP15 ~ gpio[15].line
+    package.GP16 ~ gpio[16].line
+    package.GP17 ~ gpio[17].line
+    package.GP18 ~ gpio[18].line
+    package.GP19 ~ gpio[19].line
+    package.GP20 ~ gpio[20].line
+    package.GP21 ~ gpio[21].line
+    package.GP22 ~ gpio[22].line
+    package.GP26 ~ gpio[26].line
+    package.GP27 ~ gpio[27].line
+    package.GP28 ~ gpio[28].line
+
+    for line in gpio:
+        line.reference ~ power_3v3

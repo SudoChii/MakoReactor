@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "makoreactor"
+version = "0.2.0"
+description = "Programmatically generate cuttable designs for leverless fight controllers"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Teddy", email = "teddymori.mako@gmail.com" }]
+dependencies = [
+    "cadquery>=2.5,<3",
+    "numpy>=1.23",
+    "affine>=2.3",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+notebook = ["jupyterlab>=4"]
+# Interactive OCP rendering in the notebook.  On CadQuery 2.8 (OCP 7.9) this
+# also needs newer tessellation than jupyter-cadquery pins:
+#   pip install --upgrade ocp-tessellate ocp-vscode
+viewer = ["jupyter-cadquery>=4,<5", "jupyterlab>=4.3.6"]
+
+[project.scripts]
+makoreactor = "makoreactor.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["makoreactor*"]
+
+[tool.setuptools.package-data]
+makoreactor = ["data/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning:ezdxf.*"]

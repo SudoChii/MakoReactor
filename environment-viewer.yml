@@ -1,0 +1,26 @@
+# Environment for interactive 3-D rendering in the notebook.
+#
+# jupyter-cadquery 4.0.2 targets OCP 7.8, which is what CadQuery 2.7 pins, so
+# this file holds CadQuery one minor version back in exchange for a dependency
+# set that resolves cleanly (`pip check` passes).  The library itself is tested
+# against both 2.7 and 2.8.
+#
+#   mamba env create -f environment-viewer.yml
+#   mamba activate mako-viewer
+#   pip install -e ".[viewer]"
+
+name: mako-viewer
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  - cadquery=2.7
+  - numpy
+  - affine
+  - pytest
+  - jupyterlab>=4.3.6
+  - pip
+  - pip:
+      - jupyter-cadquery>=4,<5

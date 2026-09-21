@@ -1,0 +1,143 @@
+#pragma experiment("TRAITS")
+#pragma experiment("FOR_LOOP")
+
+import ElectricPower
+
+from "parts/MakoKeySwitch/MakoKeySwitch.ato" import MakoKeySwitch
+from "parts/RaspberryPiPico/RaspberryPiPico.ato" import RaspberryPiPico
+from "parts/ModelUD/ModelUD.ato" import ModelUD
+
+module Mako1Board:
+    """
+    # Mako1 switch PCB
+
+    The board that goes where the switchplate goes in the mako1 stack: same
+    outline, same mounting holes, 20 key switches on the layout's own centres.
+    Low profile switches by default, which is what lets the switchplate go
+    away entirely -- a Choc is held by the PCB, not by a plate.
+
+    Everything hangs underneath, in the space the `WireSpaceModelU` layer
+    already opens up: the Pico and the Model UD both mount on the back, so the
+    only thing above the board is switches and keycaps.
+
+    ## Requirements
+    - R1: 20 switches on the `SquareCapLeverless` centres, direct wired --
+      one GPIO each, common ground, no matrix.
+    - R2: GP2040-CE's stock Pico pinout, so the board runs on stock firmware.
+    - R3: Hotswap sockets for Choc, with solder holes behind them as backup,
+      and MX solderable for anyone who wants full size.
+    - R4: Mounts on the stack's existing bolt pattern, adding no holes.
+    - R5: Pico and Model UD on the back, inside the wire space.
+
+    ## Wiring
+    Every switch is a pole pair: A to its GPIO, B to ground.  GP2040-CE turns
+    on the RP2040's internal pull-ups, so there is nothing else to add -- no
+    resistors, no diodes, no matrix.  That is the whole circuit.
+    """
+
+    pico = new RaspberryPiPico
+    usb = new ModelUD
+
+    # Power: the Model UD's VSYS is VBUS through its own Schottky, which is
+    # exactly what the Pico's VSYS wants.  Nothing else on the board draws.
+    power = new ElectricPower
+    usb.power ~ power
+    pico.power ~ power
+    pico.package.VSYS.override_net_name = "vsys"
+    pico.package.GND.override_net_name = "gnd"
+
+    # USB data reaches the Pico by wire from TP2/TP3, so it stops here at the
+    # link pads rather than being routed to the Pico footprint.
+    usb.usb_dp.line.override_net_name = "usb_dp"
+    usb.usb_dm.line.override_net_name = "usb_dm"
+
+    # 5V to VBUS, straight off the Model UD wiring diagram.  VSYS already
+    # comes through the breakout's own Schottky; VBUS is the raw bus voltage
+    # and the Pico wants both.
+    usb.package.V5 ~ pico.package.VBUS
+    pico.package.VBUS.override_net_name = "vbus"
+
+    # GameCube detect to GP28.  This is the wire that makes a USB-C to
+    # GameCube cable work at all: the Model UD pulls GCD when it sees one, and
+    # HayBox reads it as `joybus_data = 28`.  Without it the board is USB only.
+    usb.package.GCD ~ pico.package.GP28
+    pico.package.GP28.override_net_name = "joybus"
+
+    # The diagram is explicit about this one: connect AGND to GND.  It is the
+    # RP2040's analogue ground, and left floating it makes the ADC noisy.
+    pico.package.AGND ~ power.lv
+
+    # Rails that stay unconnected on purpose, named so they read as deliberate
+    # rather than as something forgotten: the Pico's own regulator output and
+    # the Model UD's 3V detect pad.
+    pico.package.V3V3.override_net_name = "pico_3v3"
+    usb.package.V3V.override_net_name = "usb_3v_detect"
+
+    # --- the buttons -------------------------------------------------------
+    # In layout order, which is the order makoreactor's `layout.layout` gives
+    # them and the order `tools/place.py` places them in:
+    #
+    #   0-3    left hand, index out to pinky
+    #   4-7    right hand, top row
+    #   8-11   right hand, bottom row
+    #   12-13  left thumb
+    #   14-18  right thumb
+    #   19     start
+    #
+    # GPIO assignments are GP2040-CE's stock Pico mapping, so the eighteen
+    # standard functions work on stock firmware; GP14 and GP15 are the two
+    # spare c-stick positions this layout has and that mapping does not.
+    switches = new MakoKeySwitch[20]
+
+    for switch in switches:
+        switch.B ~ power.lv
+
+    # left homerow
+    switches[0].A ~ pico.gpio[2].line
+    pico.package.GP2.override_net_name = "sw_lf1"
+    switches[1].A ~ pico.gpio[3].line
+    pico.package.GP3.override_net_name = "sw_lf2"
+    switches[2].A ~ pico.gpio[4].line
+    pico.package.GP4.override_net_name = "sw_lf3"
+    switches[3].A ~ pico.gpio[5].line
+    pico.package.GP5.override_net_name = "sw_lf4"
+
+    # right homerow
+    switches[4].A ~ pico.gpio[26].line
+    pico.package.GP26.override_net_name = "sw_rf1"
+    switches[5].A ~ pico.gpio[21].line
+    pico.package.GP21.override_net_name = "sw_rf2"
+    switches[6].A ~ pico.gpio[19].line
+    pico.package.GP19.override_net_name = "sw_rf3"
+    switches[7].A ~ pico.gpio[17].line
+    pico.package.GP17.override_net_name = "sw_rf4"
+    switches[8].A ~ pico.gpio[27].line
+    pico.package.GP27.override_net_name = "sw_rf5"
+    switches[9].A ~ pico.gpio[22].line
+    pico.package.GP22.override_net_name = "sw_rf6"
+    switches[10].A ~ pico.gpio[20].line
+    pico.package.GP20.override_net_name = "sw_rf7"
+    switches[11].A ~ pico.gpio[18].line
+    pico.package.GP18.override_net_name = "sw_rf8"
+
+    # left thumb
+    switches[12].A ~ pico.gpio[6].line
+    pico.package.GP6.override_net_name = "sw_lt1"
+    switches[13].A ~ pico.gpio[7].line
+    pico.package.GP7.override_net_name = "sw_lt2"
+
+    # right thumb
+    switches[14].A ~ pico.gpio[14].line
+    pico.package.GP14.override_net_name = "sw_rt1"
+    switches[15].A ~ pico.gpio[15].line
+    pico.package.GP15.override_net_name = "sw_rt2"
+    switches[16].A ~ pico.gpio[13].line
+    pico.package.GP13.override_net_name = "sw_rt3"
+    switches[17].A ~ pico.gpio[12].line
+    pico.package.GP12.override_net_name = "sw_rt4"
+    switches[18].A ~ pico.gpio[16].line
+    pico.package.GP16.override_net_name = "sw_rt5"
+
+    # misc
+    switches[19].A ~ pico.gpio[0].line
+    pico.package.GP0.override_net_name = "sw_mb1"

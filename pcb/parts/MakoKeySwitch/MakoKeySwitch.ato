@@ -1,0 +1,41 @@
+#pragma experiment("TRAITS")
+
+import has_designator_prefix
+import is_atomic_part
+import has_part_picked
+import has_part_removed
+
+component MakoKeySwitch:
+    """
+    One key switch position, taking either standard.
+
+    The footprint is compound: a Kailh Choc v1 drops in and is held by a
+    hotswap socket on the back, or is soldered straight into the same holes;
+    a Cherry MX (or an MX-pinned low profile like Gateron KS-33) solders into
+    its own pair.  The two standards' poles are paired so that the closest two
+    holes -- MX pin 2 and Choc pin 1, 2.67mm apart -- land on the same net and
+    are allowed to overlap.  What is left between opposite poles is 0.17mm, so
+    do not widen the annular rings; ``tools/build_parts.py`` fails if you do.
+
+    MX cannot be hotswapped here.  Its socket wants 3mm holes at the MX pin
+    positions, and those overlap the Choc socket's -- one standard or the
+    other gets the sockets, and the low profile one is the default.
+    """
+
+    trait is_atomic_part<manufacturer="MakoReactor", partnumber="MakoKeySwitch", footprint="MakoKeySwitch.kicad_mod", symbol="MakoKeySwitch.kicad_sym">
+    # Not picked from a catalogue -- you buy these yourself.  The trait is
+    # still needed: designators only go to parts that carry it.  Supplier
+    # fields are left empty on purpose, which is what stops the picker
+    # treating this as an LCSC part it should go and look up.
+    trait has_part_picked<supplier_id="", supplier_partno="", manufacturer="Kailh or Cherry", partno="Choc v1 / MX">
+    # Nothing on this board is machine-populated: the switches, the Pico
+    # and the USB breakout all go in by hand.  This keeps them out of the
+    # assembly BOM while still putting them on the PCB.
+    trait has_part_removed
+
+    trait has_designator_prefix<prefix="SW">
+
+    # Poles, not pins: a switch is not polarised, and each pole is shared by
+    # both standards' holes and the socket pad that goes with them.
+    pin A
+    pin B
